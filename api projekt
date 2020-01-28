@@ -1,0 +1,172 @@
+const express = require('express');
+const app = express();
+const lowdb = require('lowdb');
+const FileSync = require('lowdb/adapters/FileSync');
+const adapter = new FileSync('products.json');
+const db = lowdb(adapter);
+//const addncheck = require('./mymodule');
+//const deleteShirt = addncheck.deleteShirt;
+//const deleteCap = addncheck.deleteCap;
+//const deleteProducts = addncheck.deleteProducts;
+//const addShirt = addncheck.addShirt;
+//const addCap = addncheck.addCap;
+//const dbInitiated = addncheck.initiatedb;
+const port = process.env.PORT || 8000;
+
+
+
+app.use(express.static('public'));
+
+
+
+const initiatedb = () => {
+    const dbInitiated = db.has('products').value();
+
+    if (!dbInitiated) {
+        db.defaults({ products: [] }).write()
+    }
+}
+
+const addShirt = () => {
+    if (db.get('products').find({name: 'Shirt'}).value())
+        
+    console.log(db.get('products').find({name: 'Shirt'}).value()) 
+    
+    else  (
+    db.get('products').push({ 
+    name: 'Shirt',
+    price: '10',
+    img: 'randomlink'})
+    .write());   
+}; 
+
+app.post('/api/product/AddShirt', (req, res) => {
+    console.log(req.url);
+    
+    if(db.get('products').find({name: 'Shirt'}).value()){
+    console.log(db.get('products').find({name: 'Shirt'}).value()) 
+    
+        mes = {
+              success: false,
+              mes: 'Item already added'
+          }
+      } else {
+        mes = {
+              success: true,
+              mes: 'Shirt successfully added to the cart'
+          }
+      }
+      
+      
+      res.send(mes);
+     addShirt();
+          
+});
+
+const addCap = () => {
+    if (db.get('products').find({name: 'Cap'}).value()) 
+
+    console.log(db.get('products').find({name: 'Cap'}).value()) 
+    
+    else  (
+    db.get('products').push({ 
+    name: 'Cap',
+    price: '8',
+    img: 'randomlink'})
+    .write());  
+
+}; 
+
+const deleteProducts = () => {
+    if (db.get('products').value())
+        db.get('products').remove({}).write()
+                   
+};
+
+const deleteShirt = () => {
+   if (db.has('products').value()){
+   db.get('products').remove({name: 'Shirt'}).write()
+   }
+};
+
+const deleteCap = () => {
+    if (db.has('products').value()){
+        db.get('products').remove({name: 'Cap'}).write()
+        }
+};
+
+app.post('/api/product/AddCap', (req, res) => {
+    console.log(req.url);
+    
+    if(db.get('products').find({name: 'Cap'}).value()){
+    console.log(db.get('products').find({name: 'Cap'}).value()) 
+    
+        mes = {
+              success: false,
+              mes: 'Item already added'
+          }
+      } else {
+        mes = {
+              success: true,
+              mes: 'Cap successfully added to the cart'
+          }
+      }
+      
+      res.send(mes);
+      addCap();
+});
+
+app.delete('/api/product/deleteAll', (req, res) => {
+    console.log(req.url);
+    deleteProducts();
+    let mes = {
+        success: true,
+        mes: 'All products deleted succsesfuly'
+    }
+
+    res.send(mes);
+});
+
+app.delete('/api/product/deleteShirt', (req, res) => {
+    console.log(req.url);
+    deleteShirt();
+    let mes = {
+        success: true,
+        mes: 'Shirt deleted succsesfuly'
+    }
+    res.send(mes);
+});
+
+app.delete('/api/product/deleteCap', (req, res) => {
+    console.log(req.url);
+    deleteCap();
+    let mes = {
+        success: true,
+        mes: 'Shirt deleted succsesfuly'
+    }
+    res.send(mes);
+});
+
+app.post('/api/product/:Add', (req, res) => {
+console.log(req.url);
+let mes = {
+    success: false,
+    mes: 'The item you try to add dosent exist'
+}
+
+res.send(mes)
+});
+
+app.delete('/api/product/:Delete', (req, res) => {
+    console.log(req.url);
+    let mes = {
+        success: false,
+        mes: 'The item you try to delete dosent exist'
+    }
+    
+    res.send(mes)
+    });
+
+app.listen(port, () => { console.log('Server initiated on port:', port);
+    initiatedb();
+});
